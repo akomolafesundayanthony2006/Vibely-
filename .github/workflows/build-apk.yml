@@ -21,10 +21,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Fix JVM target
+      -      - name: Fix JVM target
         working-directory: project
         run: |
           sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' app/build.gradle.kts
+          sed -i 's/"1\.8"/"17"/g' app/build.gradle.kts
+          sed -i "s/'1\.8'/'17'/g" app/build.gradle.kts
       - name: Install Gradle
         run: |
           curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
