@@ -24,36 +24,63 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Force Java and Kotlin to JVM 17
+        working-directory: project
+        run: |
+          cat > app/build.gradle.kts <<'EOF'
+          plugins {
+              id("com.android.application")
+              id("org.jetbrains.kotlin.android")
+          }
+
+          android {
+              namespace = "com.vibely.app"
+              compileSdk = 35
+
+              defaultConfig {
+                  applicationId = "com.vibely.app"
+                  minSdk = 23
+                  targetSdk = 35
+                  versionCode = 1
+                  versionName = "1.0"
+              }
+
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
+          }
+
+          dependencies {
+              implementation("androidx.core:core-ktx:1.15.0")
+              implementation("androidx.appcompat:appcompat:1.7.0")
+              implementation("com.google.android.material:material:1.12.0")
+              implementation("androidx.activity:activity-ktx:1.10.0")
+          }
+          EOF
+
+          echo "===== FINAL BUILD CONFIGURATION ====="
+          cat app/build.gradle.kts
+
       - name: Install Gradle
         run: |
           curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
           unzip -q gradle.zip
           echo "$PWD/gradle-8.11.1/bin" >> "$GITHUB_PATH"
 
-      - name: Fix Java and Kotlin JVM targets
+      - name: Clean project
         working-directory: project
         run: |
-          echo "Checking Gradle configuration..."
-          cat app/build.gradle.kts
-
-          echo "Fixing Java 8 targets..."
-          sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' app/build.gradle.kts
-          sed -i 's/JavaVersion.VERSION_8/JavaVersion.VERSION_17/g' app/build.gradle.kts
-          sed -i 's/jvmTarget *= *"1\.8"/jvmTarget = "17"/g' app/build.gradle.kts
-          sed -i 's/jvmTarget *= *"8"/jvmTarget = "17"/g' app/build.gradle.kts
-
-          echo "Final Gradle configuration:"
-          cat app/build.gradle.kts
-
-      - name: Check Gradle version
-        working-directory: project
-        run: |
-          gradle --version
+          gradle clean --no-daemon
 
       - name: Build Vibely APK
         working-directory: project
         run: |
-          gradle clean assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon
 
       - name: Upload Vibely APK
         uses: actions/upload-artifact@v4
