@@ -1,5 +1,5 @@
-name: Build Vibely APK
 
+Vibely_Fresh_Project.zip
 on:
   workflow_dispatch:
   push:
