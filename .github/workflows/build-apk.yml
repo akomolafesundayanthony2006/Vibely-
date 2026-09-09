@@ -1,5 +1,5 @@
+"Vibely_Fresh_Project.zip"
 
-Vibely_Fresh_Project.zip
 on:
   workflow_dispatch:
   push:
